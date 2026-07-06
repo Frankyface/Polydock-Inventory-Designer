@@ -6,7 +6,10 @@ Good news: after dropping Supabase in favor of local-storage-only inventory, the
 
 ## Blocks Stage 5 (deploy)
 
-- [ ] **Enable GitHub Pages for the repo.** Repo → Settings → Pages → Source: "GitHub Actions" (not "Deploy from a branch"). Needs to be done once, before the first Actions deploy will actually publish. No secrets needed — the build has no environment variables to configure.
+- [ ] **Point GitHub Pages at a working source.** Confirmed diagnosis (2026-07-06): the repo's Settings → Pages → Source was set to "Deploy from a branch" / `main` / `(root)`, which serves the raw, unbuilt `index.html` (the one referencing `/src/main.jsx`, which no browser can execute) — not the actual built app. The workflow (`.github/workflows/deploy.yml`) now publishes the built site to **both** places, so either fix works — pick whichever is easier to get to in Settings:
+  - **Option A (recommended, modern):** Settings → Pages → Source → switch to **"GitHub Actions"**.
+  - **Option B (works with "Deploy from a branch" as-is):** leave Source on "Deploy from a branch", but change the **branch** dropdown from `main` to **`gh-pages`** (the workflow now pushes the built site there automatically on every push to `main`; that branch won't exist until the workflow has run at least once).
+  - Either one, once set, should go live within about a minute — no re-push needed after just flipping the setting.
 
 ## Good to know, no action needed yet
 

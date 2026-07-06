@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -25,6 +25,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Publishes the build to a gh-pages branch too, so the site works
+      # under Pages' "Deploy from a branch" source (pick gh-pages / root)
+      # as well as under "GitHub Actions" source (handled by the deploy
+      # job below via upload-pages-artifact + deploy-pages). Whichever
+      # source is selected in Settings > Pages, one of these two publishes
+      # will actually be live — see CLAUDE.md.
+      - name: Publish build to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
