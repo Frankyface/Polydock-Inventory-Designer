@@ -22,7 +22,7 @@ Stage 1 is functionally complete and verified in-browser: the app shows a tabbed
 - Fixed a real bug found in code review: `vite.config.js` had a hardcoded absolute Windows path as `root`, which would have broken the GitHub Actions build (different filesystem/path on the CI runner) — removed entirely; base path is set conditionally (`/Polydock-Inventory-Designer/` for build, `/` for dev) with no path hardcoding.
 - Verified the app end-to-end in-browser: tab switching, quantity entry + blur-to-commit, invalid-input feedback (red border + message), and persistence across a full page reload all confirmed working via screenshots and localStorage inspection.
 - Ran an 8-angle parallel code review on the (now largely superseded) Supabase-era code; the two findings that survived the pivot (the two bugs above) were fixed. The rest (RLS gaps, schema depth, auth races) are moot since that code no longer exists.
-- Initialized git, added the `origin` remote (`https://github.com/Frankyface/Polydock-Inventory-Designer.git`), staged all files. Not yet committed/pushed — see Next Up.
+- Initialized git, added the `origin` remote (`https://github.com/Frankyface/Polydock-Inventory-Designer.git`), committed, and pushed `main`. The repo now has the full Stage 1 scaffold.
 
 ## ❌ Tried But Failed
 - **Creating a Supabase project failed** (2-project free-tier limit on the `Frankyface` account) — this is what originally motivated investigating alternatives, though the user's local-storage decision was a deliberate simplification, not purely a workaround for the blocker.
@@ -30,10 +30,9 @@ Stage 1 is functionally complete and verified in-browser: the app shows a tabbed
 - **A `--base=/` CLI flag via the Bash tool got silently mangled** by Git Bash's MSYS path conversion into `C:/Program Files/Git/...` — also documented in `CLAUDE.md`. Fixed by setting `base` inside `vite.config.js` instead of as a CLI arg.
 
 ## ➡️ Next Up
-1. `git commit` and `git push -u origin main` (repo is initialized, remote added, everything staged — just needs the commit + push).
-2. Enable GitHub Pages (Settings → Pages → Source: "GitHub Actions") — tracked in `help.md`, needed before the Actions deploy will actually publish anywhere.
-3. Decide what's next on the roadmap: Stage 2 (CSV bulk import) is next in the original order, but Stage 3 (design canvas) is the more visible/exciting piece and no longer blocked by anything — worth asking the user which they'd rather see next.
-4. When ready for Stage 3: resolve the canvas rendering approach (SVG vs. Canvas vs. DOM/CSS-grid) per `staging/stage-3-design-canvas/overview.md`'s open question.
+1. Enable GitHub Pages (Settings → Pages → Source: "GitHub Actions") — tracked in `help.md`, needed before the Actions deploy will actually publish anywhere. This is the one remaining manual step before the site is live.
+2. Decide what's next on the roadmap: Stage 2 (CSV bulk import) is next in the original order, but Stage 3 (design canvas) is the more visible/exciting piece and no longer blocked by anything — worth asking the user which they'd rather see next.
+3. When ready for Stage 3: resolve the canvas rendering approach (SVG vs. Canvas vs. DOM/CSS-grid) per `staging/stage-3-design-canvas/overview.md`'s open question.
 
 ## 🔗 Pointer
 → Current stage folder: `staging/stage-1-foundation/` (done) · Next stage: `staging/stage-2-bulk-import/` or `staging/stage-3-design-canvas/` (user to choose) · Active feature file: none yet for the next stage — see Next Up.
