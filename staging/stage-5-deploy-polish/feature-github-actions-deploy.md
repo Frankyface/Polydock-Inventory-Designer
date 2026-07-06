@@ -2,19 +2,21 @@
 
 A GitHub Actions workflow that builds the Vite app and publishes it to GitHub Pages on every push to `main`.
 
-## Incident (2026-07-06): live site went blank after the Stage 4 push
+## Incident (2026-07-06): live site went blank, intermittently
 
-The live site (`frankyface.github.io/Polydock-Inventory-Designer/`) was serving the raw, unbuilt `index.html` (`<script src="/src/main.jsx">`, which no browser can execute) instead of the built app. Confirmed root cause, not a code bug:
+The live site (`frankyface.github.io/Polydock-Inventory-Designer/`) was serving the raw, unbuilt `index.html` (`<script src="/src/main.jsx">`, which no browser can execute) instead of the built app — but had apparently worked earlier, which was the key clue.
 
-- Rebuilding the exact committed code locally with the real production config produced a correct `dist/index.html` (properly referencing `/Polydock-Inventory-Designer/assets/...`).
-- The GitHub Actions run for that push succeeded end-to-end, including the `deploy` job (`actions/deploy-pages@v4`).
-- But the specific built asset filename that build produced returned 404 on the live domain, while the page root matched the repo's raw `index.html` byte-for-byte.
+**Actual root cause (a deployment race), found via the Actions run list:** two separate deployers were BOTH running on every push and BOTH publishing to the same `github-pages` environment:
 
-This combination only happens when the repo's **Settings → Pages → Source** is "Deploy from a branch" (serving the raw repo tree from `main`) instead of "GitHub Actions" (serving the artifact the workflow builds) — the two are mutually exclusive, and only one can be live at a time regardless of whether the Actions workflow itself succeeds.
+1. `Deploy to GitHub Pages` — our custom workflow, which built the app correctly.
+2. `pages build and deployment` — GitHub's built-in branch builder, which runs **only** when Pages Source = "Deploy from a branch". With Source = `main`/`(root)`, it served the repo's raw root `index.html`.
 
-**Fix shipped:** the workflow (`.github/workflows/deploy.yml`) now publishes the build to *both* places — the existing `upload-pages-artifact`/`deploy-pages` path (for Source = "GitHub Actions") **and** a new `peaceiris/actions-gh-pages@v4` step that pushes `dist/` to a `gh-pages` branch (for Source = "Deploy from a branch", branch = `gh-pages`). Whichever Source setting is actually active in Settings, one of the two will be live. See `help.md` for the exact steps to point Pages at whichever one is easier to reach in the UI.
+Because both target the same environment, whichever finished last won. That non-determinism is exactly why the site "worked before" (our build won that race) and then broke (the raw-source builder won). The presence of `pages build and deployment` in the run history is the proof that Source was in branch mode the whole time — that job never runs under Source = "GitHub Actions".
+
+Earlier misdiagnosis (worth recording as a dead-end): this was first read as a simple "Source is on the wrong setting, just toggle it" problem, and a lot of time was lost re-checking the same 404 instead of looking at *which workflow actually produced the live deployment*. The run list was the diagnostic that should have been pulled first.
+
+**Fix shipped:** `.github/workflows/deploy.yml` was simplified to a single deployer — it builds and publishes `dist/` to the **`gh-pages`** branch via `peaceiris/actions-gh-pages@v4`, and nothing else. The `actions/upload-pages-artifact` + `actions/deploy-pages` jobs were removed, because using `deploy-pages` alongside a branch-based Pages source is precisely what created the race. Now there is exactly one path: workflow → `gh-pages` branch → GitHub serves that branch. The required human step (Settings → Pages → branch dropdown `main` → `gh-pages`) is in `help.md`.
 
 ## Open Questions
 
 - Custom domain, or the default `frankyface.github.io/Polydock-Inventory-Designer` path? Affects the Vite `base` config — not decided yet, defaulting to the repo-path option unless told otherwise.
-- Once Pages is confirmed reliably serving from one source, consider dropping the other publish path from the workflow to keep it simple — kept both for now since which Settings toggle is actually easiest/reliable for this repo hasn't been confirmed yet.

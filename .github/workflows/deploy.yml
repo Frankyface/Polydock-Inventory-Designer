@@ -5,17 +5,27 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Only contents:write is needed — we build the app and publish the output to
+# the gh-pages branch, then let GitHub's built-in "Deploy from a branch" Pages
+# source serve that branch.
+#
+# We deliberately do NOT use actions/deploy-pages here. Mixing a custom
+# deploy-pages workflow with a branch-based Pages source makes TWO deployers
+# race for the same github-pages environment: this workflow, and GitHub's
+# built-in "pages build and deployment" job. Whichever finishes last wins, so
+# the live site would intermittently serve the raw, unbuilt index.html (the
+# one referencing /src/main.jsx) instead of the build. Publishing to a single
+# branch and serving that branch removes the race entirely.
+# See staging/stage-5-deploy-polish/feature-github-actions-deploy.md.
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-deploy
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,27 +35,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # Publishes the build to a gh-pages branch too, so the site works
-      # under Pages' "Deploy from a branch" source (pick gh-pages / root)
-      # as well as under "GitHub Actions" source (handled by the deploy
-      # job below via upload-pages-artifact + deploy-pages). Whichever
-      # source is selected in Settings > Pages, one of these two publishes
-      # will actually be live — see CLAUDE.md.
       - name: Publish build to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

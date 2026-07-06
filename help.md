@@ -4,12 +4,15 @@ Ordered checklist of human-only tasks. Check items off as you go.
 
 Good news: after dropping Supabase in favor of local-storage-only inventory, there's no backend to set up and no account/project blockers. This list is much shorter than it used to be.
 
-## Blocks Stage 5 (deploy)
+## Blocks Stage 5 (deploy) — ONE dropdown change needed
 
-- [ ] **Point GitHub Pages at a working source.** Confirmed diagnosis (2026-07-06): the repo's Settings → Pages → Source was set to "Deploy from a branch" / `main` / `(root)`, which serves the raw, unbuilt `index.html` (the one referencing `/src/main.jsx`, which no browser can execute) — not the actual built app. The workflow (`.github/workflows/deploy.yml`) now publishes the built site to **both** places, so either fix works — pick whichever is easier to get to in Settings:
-  - **Option A (recommended, modern):** Settings → Pages → Source → switch to **"GitHub Actions"**.
-  - **Option B (works with "Deploy from a branch" as-is):** leave Source on "Deploy from a branch", but change the **branch** dropdown from `main` to **`gh-pages`** (the workflow now pushes the built site there automatically on every push to `main`; that branch won't exist until the workflow has run at least once).
-  - Either one, once set, should go live within about a minute — no re-push needed after just flipping the setting.
+**Confirmed diagnosis (2026-07-06):** Pages was set to **"Deploy from a branch" → `main` → `(root)`**. That mode makes GitHub's built-in "pages build and deployment" job serve the repo's raw `main`/root files — including the unbuilt `index.html` that references `/src/main.jsx` (which no browser can run). That's why the page came up blank. It appeared to "work before" because a second deployer (our own Actions workflow) was also publishing to the same environment and the two were racing — sometimes the real build won, sometimes the raw-source builder did. The workflow has now been simplified to publish the built site to the **`gh-pages`** branch only (no more race).
+
+- [ ] **In Settings → Pages, keep "Deploy from a branch", change the branch dropdown from `main` to `gh-pages`, leave the folder on `/(root)`, and click Save.**
+  - `gh-pages` already contains the complete, correct build (`index.html` + `assets/` + `.nojekyll`), refreshed automatically on every push to `main`.
+  - This is the smallest possible change from the screen you were already on — only the branch dropdown changes.
+  - Give it ~1 minute after saving; no re-push needed.
+  - (Alternative, if you'd rather: Source → "GitHub Actions" also works, but then the branch build stops updating — sticking with branch → `gh-pages` matches how the workflow now publishes.)
 
 ## Good to know, no action needed yet
 
