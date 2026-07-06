@@ -79,7 +79,7 @@ No server, no database, no auth — everything above runs in the user's browser.
 | Stage | Goal | Headline feature |
 |---|---|---|
 | 1 — Foundation | Catalog + local inventory | Bundled PolyDock parts catalog, tabbed manual inventory entry backed by localStorage — **done** |
-| 2 — Bulk Import | Fast data entry | CSV/spreadsheet upload for inventory counts |
+| 2 — Bulk Import | Fast data entry | CSV/spreadsheet upload for inventory counts — **done** |
 | 3 — Design Canvas | Core visual tool | 2D grid canvas, real modules snap edge-to-edge, free-design mode |
 | 4 — Stock-Aware BOM | The core "disconnect" fix | Auto-connector-matching, live stock check, commit-to-inventory (reserve/deduct + release) |
 | 5 — Deploy & Polish | Ship it | GitHub Actions build → GitHub Pages, docs, cleanup |

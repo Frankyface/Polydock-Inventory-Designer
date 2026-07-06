@@ -30,10 +30,22 @@ export function useLocalInventory() {
     setQuantities((current) => ({ ...current, [partId]: quantity }))
   }, [])
 
+  // Merges many updates (e.g. a CSV import) into one state update instead of
+  // one per row.
+  const applyBulkQuantities = useCallback((updates) => {
+    setQuantities((current) => {
+      const next = { ...current }
+      updates.forEach(({ partId, quantity }) => {
+        next[partId] = quantity
+      })
+      return next
+    })
+  }, [])
+
   const parts = PARTS.map((part) => ({
     ...part,
     quantityOnHand: quantities[part.id] ?? 0,
   }))
 
-  return { parts, setQuantity }
+  return { parts, setQuantity, applyBulkQuantities }
 }

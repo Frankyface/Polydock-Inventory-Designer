@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { CATEGORIES, CATEGORY_LABELS } from '../../data/partsCatalog.js'
-import { useLocalInventory } from './useLocalInventory.js'
 import { CategoryTabs } from './CategoryTabs.jsx'
 import { PartRow } from './PartRow.jsx'
 
-export function CatalogInventoryView() {
-  const { parts, setQuantity } = useLocalInventory()
+export function CatalogInventoryView({ parts, setQuantity }) {
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0])
 
   const visibleParts = parts.filter((part) => part.category === activeCategory)

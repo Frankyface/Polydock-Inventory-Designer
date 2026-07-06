@@ -82,3 +82,24 @@ th, td {
   border-color: #b3261e;
   outline-color: #b3261e;
 }
+
+.csv-import-panel {
+  margin-bottom: 1.5rem;
+}
+
+.csv-import-body {
+  margin-top: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #dde3e8;
+  border-radius: 8px;
+}
+
+.csv-import-body table {
+  margin-bottom: 1rem;
+}
+
+.csv-import-body h3 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
