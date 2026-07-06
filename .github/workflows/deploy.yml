@@ -5,27 +5,28 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Only contents:write is needed — we build the app and publish the output to
-# the gh-pages branch, then let GitHub's built-in "Deploy from a branch" Pages
-# source serve that branch.
-#
-# We deliberately do NOT use actions/deploy-pages here. Mixing a custom
-# deploy-pages workflow with a branch-based Pages source makes TWO deployers
-# race for the same github-pages environment: this workflow, and GitHub's
-# built-in "pages build and deployment" job. Whichever finishes last wins, so
-# the live site would intermittently serve the raw, unbuilt index.html (the
-# one referencing /src/main.jsx) instead of the build. Publishing to a single
-# branch and serving that branch removes the race entirely.
-# See staging/stage-5-deploy-polish/feature-github-actions-deploy.md.
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: pages-deploy
+  group: pages
   cancel-in-progress: true
 
+# The build is published for BOTH Pages "source" modes, so the site works
+# whichever one is selected in Settings > Pages:
+#   * "GitHub Actions"          -> served by the deploy job below (deploy-pages)
+#   * "Deploy from a branch"    -> point it at the gh-pages branch, which the
+#                                  peaceiris step keeps updated
+# The one mode that CANNOT work is "Deploy from a branch -> main -> (root)":
+# that serves the repo's raw source index.html (which references /src/main.jsx,
+# unrunnable in a browser), not the build — there is no way to serve a Vite
+# build from the same branch/folder that holds its source. If the live site is
+# blank, that's the setting to move OFF of.
+# See staging/stage-5-deploy-polish/feature-github-actions-deploy.md.
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +36,21 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - name: Publish build to gh-pages branch
+      - name: Publish build to gh-pages branch (for "Deploy from a branch" mode)
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
