@@ -15,7 +15,9 @@ Because both target the same environment, whichever finished last won. That non-
 
 Earlier misdiagnosis (worth recording as a dead-end): this was first read as a simple "Source is on the wrong setting, just toggle it" problem, and a lot of time was lost re-checking the same 404 instead of looking at *which workflow actually produced the live deployment*. The run list was the diagnostic that should have been pulled first.
 
-**Fix shipped:** `.github/workflows/deploy.yml` was simplified to a single deployer — it builds and publishes `dist/` to the **`gh-pages`** branch via `peaceiris/actions-gh-pages@v4`, and nothing else. The `actions/upload-pages-artifact` + `actions/deploy-pages` jobs were removed, because using `deploy-pages` alongside a branch-based Pages source is precisely what created the race. Now there is exactly one path: workflow → `gh-pages` branch → GitHub serves that branch. The required human step (Settings → Pages → branch dropdown `main` → `gh-pages`) is in `help.md`.
+**What actually fixed it (RESOLVED 2026-07-06):** the race theory above was partly a red herring. The decisive cause was that an intermediate `deploy.yml` edit (commit `5d60116`) had *removed* the `actions/deploy-pages` job entirely — which is the job that serves the build under the repo's actual Pages source. With it gone, nothing served the build and the site stayed on the raw fallback. **Restoring `actions/deploy-pages` (commit `9783fb6`) brought the live site back immediately** — verified serving the built app (root HTML → `/Polydock-Inventory-Designer/assets/…`, JS and CSS both 200). Lesson: when a deploy breaks, check *which deploy job actually serves the live environment* before theorising about settings — a removed job was the real cause, not (only) a source-setting mismatch.
+
+Final workflow state: publishes for **both** Pages source modes — `actions/deploy-pages` (for Source = "GitHub Actions") **and** `peaceiris/actions-gh-pages` → `gh-pages` branch (for Source = "Deploy from a branch → gh-pages"). Robust to either setting; the only unservable setting is "branch → main → (root)".
 
 ## Open Questions
 

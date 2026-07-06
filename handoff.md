@@ -33,8 +33,11 @@ Stages 1–4 are all functionally complete and verified in-browser via a real pr
 ## ❌ Tried But Failed
 Nothing failed outright this session. The double-click race was initially going to be "fixed" by just disabling the button — testing (and the review's own reasoning) showed that alone doesn't close the gap without also making the underlying inventory update delta-based, since two absolute-value writes computed from the same stale snapshot converge to a wrong single value even without a UI race. Both fixes were needed together.
 
+## 🚀 Deploy status
+The app is **live** at https://frankyface.github.io/Polydock-Inventory-Designer/ (verified 2026-07-06: root HTML serves the build, JS/CSS bundles 200). A deploy incident this session — the live site went blank — was root-caused to a `deploy.yml` edit that removed the `actions/deploy-pages` job; restoring it (commit `9783fb6`) fixed it. The workflow now publishes for both Pages source modes so it won't regress the same way. Full write-up in `staging/stage-5-deploy-polish/feature-github-actions-deploy.md`; the incident lesson (check which deploy job serves the live environment before blaming settings) is worth remembering.
+
 ## ➡️ Next Up
-1. Stage 5 (Deploy & Polish) is the last planned stage — see `staging/stage-5-deploy-polish/` for what's already scaffolded there.
+1. Stage 5 (Deploy & Polish) is the last planned stage — deploy itself is now working (see above); remaining polish items live in `staging/stage-5-deploy-polish/`.
 2. Real interactive testing (actual mouse/touch use, not just automated verification) should validate `SNAP_TOLERANCE_FT` and the independent-per-axis-snapping limitation noted in `staging/stage-3-design-canvas/overview.md`.
 3. Get a real sample inventory spreadsheet from the business when possible, to validate Stage 2's CSV header-detection guesses (still unvalidated against a real export).
 4. If multiple concurrent in-progress designs competing for the same limited stock becomes a real workflow, revisit the no-cross-design-reservation limitation documented in `feature-stock-check.md` — don't build it speculatively before then.
