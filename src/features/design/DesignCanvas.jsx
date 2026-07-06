@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { CANVAS_WIDTH_FT, CANVAS_HEIGHT_FT, PIXELS_PER_FOOT, DEFAULT_BACKGROUND_WIDTH_FT } from './constants.js'
-import { getFootprint, getBounds, hasFootprint, computeSnappedPosition, computeSeams } from './geometry.js'
+import { getFootprint, getBounds, hasFootprint, computeSnappedPosition } from './geometry.js'
 import { GridLines } from './GridLines.jsx'
 import { PlacedModuleShape } from './PlacedModuleShape.jsx'
 import { AccessoryMarker } from './AccessoryMarker.jsx'
@@ -15,7 +15,9 @@ function getDisplayPosition(item, dragState) {
 }
 
 export function DesignCanvas({
-  items,
+  footprintItems,
+  markerItems,
+  seams,
   partsById,
   selectedItemId,
   onSelect,
@@ -23,6 +25,7 @@ export function DesignCanvas({
   backgroundImage,
   isPositioningBackground,
   onUpdateBackground,
+  isLocked,
 }) {
   const svgRef = useRef(null)
   // { itemId, offsetX, offsetY (pointer-to-item-origin offset, in ft),
@@ -34,34 +37,13 @@ export function DesignCanvas({
   // ordering (a bare pointerId race could otherwise let both be set at once).
   const [bgDragOffset, setBgDragOffset] = useState(null)
 
-  // Defends against a design whose saved items reference a partId that no
-  // longer exists in the catalog (e.g. after a future catalog change) —
-  // skips just that item instead of crashing the whole canvas. Memoized:
-  // these are read on every render (including every background-drag
-  // pointermove, which lifts state to the parent), and feed computeSeams'
-  // own memo below — an unmemoized filter here would produce a new array
-  // reference every time and silently defeat that memo.
-  const validItems = useMemo(() => items.filter((item) => partsById[item.partId]), [items, partsById])
-
-  // Modules/gangways are true-scale rectangles that snap edge-to-edge and
-  // participate in seam classification; accessories are freely-placed
-  // markers with no footprint (see geometry.js's hasFootprint).
-  const footprintItems = useMemo(
-    () => validItems.filter((item) => hasFootprint(partsById[item.partId])),
-    [validItems, partsById],
-  )
-  const markerItems = useMemo(
-    () => validItems.filter((item) => !hasFootprint(partsById[item.partId])),
-    [validItems, partsById],
-  )
-
   function toFeet(clientX, clientY) {
     const rect = svgRef.current.getBoundingClientRect()
     return { x: (clientX - rect.left) / PIXELS_PER_FOOT, y: (clientY - rect.top) / PIXELS_PER_FOOT }
   }
 
   function handleBackgroundPointerDown(event) {
-    if (dragState) return // an item drag is already in progress — never overlap the two
+    if (dragState || isLocked) return // an item drag is already in progress, or a committed design freezes it too
     event.stopPropagation()
     const point = toFeet(event.clientX, event.clientY)
     setBgDragOffset({ offsetX: point.x - backgroundImage.x, offsetY: point.y - backgroundImage.y })
@@ -73,7 +55,7 @@ export function DesignCanvas({
   }
 
   function handlePointerDown(event, item) {
-    if (bgDragOffset) return // background positioning is in progress — never overlap the two
+    if (bgDragOffset || isLocked) return // background drag in progress, or a committed design freezes item edits
     event.stopPropagation()
     onSelect(item.id)
     const point = toFeet(event.clientX, event.clientY)
@@ -126,7 +108,8 @@ export function DesignCanvas({
       setDragState(null)
       return
     }
-    const item = validItems.find((candidate) => candidate.id === dragState.itemId)
+    const item = footprintItems.find((candidate) => candidate.id === dragState.itemId) ??
+      markerItems.find((candidate) => candidate.id === dragState.itemId)
     if (!item) {
       setDragState(null)
       return
@@ -154,8 +137,6 @@ export function DesignCanvas({
     onUpdateItem(item.id, { x: Math.max(0, snapped.x), y: Math.max(0, snapped.y) })
     setDragState(null)
   }
-
-  const seams = useMemo(() => computeSeams(footprintItems, partsById), [footprintItems, partsById])
 
   const backgroundWidthFt = backgroundImage ? DEFAULT_BACKGROUND_WIDTH_FT * backgroundImage.scale : 0
   const backgroundHeightFt = backgroundImage

@@ -5,7 +5,8 @@ import { makeId } from '../../lib/id.js'
 // Saved designs (module placements) persisted to localStorage — same
 // per-device tradeoff as inventory (see docs/master_plan.md). A design is
 // { id, name, isFreeDesign, items: [{ id, partId, x, y, rotation }],
-// backgroundImage: {...} | null, updatedAt }.
+// backgroundImage: {...} | null, isCommitted: boolean, committedBom:
+// [{partId, quantity}] | null, updatedAt }.
 export function useDesigns() {
   const [designs, setDesigns, saveError] = useLocalStorageState('polydock:designs:v1', [])
 
@@ -19,6 +20,9 @@ export function useDesigns() {
   // saves fine for an EXISTING design (saveDesign spreads ...updates) but
   // is silently dropped forever on a brand-new design's first Save, since
   // this is the only place a new design record is actually constructed.
+  // isCommitted/committedBom aren't part of that payload today (committing
+  // a never-saved draft is blocked in the UI), but are whitelisted here too
+  // so they're never silently dropped if that ever changes.
   const createDesign = useCallback(
     (initial) => {
       const design = {
@@ -27,6 +31,8 @@ export function useDesigns() {
         isFreeDesign: initial?.isFreeDesign ?? false,
         items: initial?.items ?? [],
         backgroundImage: initial?.backgroundImage ?? null,
+        isCommitted: initial?.isCommitted ?? false,
+        committedBom: initial?.committedBom ?? null,
         updatedAt: Date.now(),
       }
       setDesigns((current) => [...current, design])

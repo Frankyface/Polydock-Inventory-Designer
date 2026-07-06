@@ -203,3 +203,21 @@ export const CONNECTOR_RULES = [
   { edgeLengthFt: 6, junctionType: 'notched', connectorPartId: 'connector-notched-6' },
   { edgeLengthFt: 8, junctionType: 'notched', connectorPartId: 'connector-notched-8' },
 ]
+
+// Stage 4: maps each gangway/ramp catalog item to the dedicated hinge/
+// connector hardware its dock-end attachment seam requires (see
+// staging/stage-3-design-canvas/feature-gangways.md's open question — this
+// selection is inferred from each part's own sourceNotes above, not
+// independently confirmed against a manufacturer install guide: width-4ft
+// ramps use the 4ft Ramp Connector, the width-6ft ramp uses the 6ft Ramp
+// Connector, and the ShoreMaster "Residential Gangway" line uses its own
+// dedicated hinge rather than a Ramp Connector). A gangway/ramp with no
+// entry here is a real data gap, not committable silently — see bom.js.
+export const GANGWAY_ATTACHMENT_RULES = {
+  'gangway-16ft': 'accessory-gangway-to-polydock-hinge',
+  'gangway-20ft': 'accessory-gangway-to-polydock-hinge',
+  'gangway-24ft': 'accessory-gangway-to-polydock-hinge',
+  'ramp-4ft': 'accessory-ramp-connector-4ft',
+  'ramp-8ft': 'accessory-ramp-connector-4ft',
+  'ramp-6x8ft': 'accessory-ramp-connector-6ft',
+}

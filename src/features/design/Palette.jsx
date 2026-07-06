@@ -12,7 +12,7 @@ const PLACEABLE_CATEGORY_LABELS = {
   accessory: 'Accessories',
 }
 
-export function Palette({ onAddItem }) {
+export function Palette({ onAddItem, disabled }) {
   const [activeCategory, setActiveCategory] = useState('module')
   const partsForCategory = PARTS.filter((part) => part.category === activeCategory)
 
@@ -30,7 +30,7 @@ export function Palette({ onAddItem }) {
         <ul>
           {partsForCategory.map((part) => (
             <li key={part.id}>
-              <button type="button" onClick={() => onAddItem(part.id)}>
+              <button type="button" onClick={() => onAddItem(part.id)} disabled={disabled}>
                 {part.name.replace('PolyDock ', '')}
                 {!part.isVerified && <span className="badge-unverified">unconfirmed</span>}
               </button>

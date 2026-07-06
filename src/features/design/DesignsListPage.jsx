@@ -1,4 +1,15 @@
 export function DesignsListPage({ designs, onCreate, onSelect, onDelete, saveError }) {
+  function handleDelete(design) {
+    // Deleting a committed design does NOT restock its parts — the BOM was
+    // deducted to reflect a real build, so it stays consumed. Warn loudly
+    // here since that's not obvious from the row alone (see
+    // staging/stage-4-stock-aware-bom/feature-commit-inventory.md).
+    const message = design.isCommitted
+      ? `"${design.name}" is committed — deleting it will NOT return its parts to inventory. Delete anyway?`
+      : `Delete "${design.name}"?`
+    if (window.confirm(message)) onDelete(design.id)
+  }
+
   return (
     <div className="designs-list-page">
       <div className="app-header">
@@ -22,6 +33,7 @@ export function DesignsListPage({ designs, onCreate, onSelect, onDelete, saveErr
               <th>Name</th>
               <th>Modules</th>
               <th>Free design</th>
+              <th>Status</th>
               <th>Updated</th>
               <th></th>
             </tr>
@@ -36,9 +48,10 @@ export function DesignsListPage({ designs, onCreate, onSelect, onDelete, saveErr
                 </td>
                 <td>{design.items.length}</td>
                 <td>{design.isFreeDesign ? 'Yes' : 'No'}</td>
+                <td>{design.isCommitted ? 'Committed' : '—'}</td>
                 <td>{new Date(design.updatedAt).toLocaleString()}</td>
                 <td>
-                  <button type="button" onClick={() => onDelete(design.id)}>
+                  <button type="button" onClick={() => handleDelete(design)}>
                     Delete
                   </button>
                 </td>

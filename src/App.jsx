@@ -7,7 +7,7 @@ import { DesignsPage } from './features/design/DesignsPage.jsx'
 const PAGES = ['Inventory', 'Designs']
 
 export default function App() {
-  const { parts, setQuantity, applyBulkQuantities } = useLocalInventory()
+  const { parts, setQuantity, applyBulkQuantities, applyBulkDeltas, saveError: inventorySaveError } = useLocalInventory()
   const [activePage, setActivePage] = useState(PAGES[0])
   // Lets DesignsPage/DesignEditor report unsaved changes, so switching the
   // top-level tab away from Designs doesn't silently discard them — the
@@ -39,13 +39,21 @@ export default function App() {
           ))}
         </nav>
       </header>
+      {inventorySaveError && (
+        <p className="error-text">
+          Inventory couldn't be saved to this browser's storage (it may be full) — the last change may not have
+          persisted.
+        </p>
+      )}
       {activePage === 'Inventory' && (
         <>
           <CsvImportPanel onApply={applyBulkQuantities} />
           <CatalogInventoryView parts={parts} setQuantity={setQuantity} />
         </>
       )}
-      {activePage === 'Designs' && <DesignsPage onDirtyChange={handleDesignsDirtyChange} />}
+      {activePage === 'Designs' && (
+        <DesignsPage onDirtyChange={handleDesignsDirtyChange} inventoryParts={parts} applyBulkDeltas={applyBulkDeltas} />
+      )}
     </>
   )
 }

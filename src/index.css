@@ -228,3 +228,34 @@ th, td {
 .background-drag-layer {
   cursor: grab;
 }
+
+.badge-committed {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: #d7f0e0;
+  color: #1a6b3c;
+}
+
+.bom-panel {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid #dde3e8;
+  border-radius: 8px;
+}
+
+.bom-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.bom-status-committed {
+  color: #1a6b3c;
+  font-weight: 600;
+}
+
+.bom-hint {
+  color: #5b6b78;
+  font-size: 0.85rem;
+}
