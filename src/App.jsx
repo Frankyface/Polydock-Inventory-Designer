@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocalInventory } from './features/inventory/useLocalInventory.js'
 import { CatalogInventoryView } from './features/inventory/CatalogInventoryView.jsx'
 import { CsvImportPanel } from './features/inventory/CsvImportPanel.jsx'
@@ -9,6 +9,18 @@ const PAGES = ['Inventory', 'Designs']
 export default function App() {
   const { parts, setQuantity, applyBulkQuantities } = useLocalInventory()
   const [activePage, setActivePage] = useState(PAGES[0])
+  // Lets DesignsPage/DesignEditor report unsaved changes, so switching the
+  // top-level tab away from Designs doesn't silently discard them — the
+  // in-editor "← Back" button isn't the only way to navigate away.
+  const [isDesignsDirty, setIsDesignsDirty] = useState(false)
+  const handleDesignsDirtyChange = useCallback((dirty) => setIsDesignsDirty(dirty), [])
+
+  function handlePageChange(page) {
+    if (activePage === 'Designs' && page !== 'Designs' && isDesignsDirty) {
+      if (!window.confirm('Discard unsaved changes to this design?')) return
+    }
+    setActivePage(page)
+  }
 
   return (
     <>
@@ -20,7 +32,7 @@ export default function App() {
               key={page}
               type="button"
               className={page === activePage ? 'tab tab-active' : 'tab'}
-              onClick={() => setActivePage(page)}
+              onClick={() => handlePageChange(page)}
             >
               {page}
             </button>
@@ -33,7 +45,7 @@ export default function App() {
           <CatalogInventoryView parts={parts} setQuantity={setQuantity} />
         </>
       )}
-      {activePage === 'Designs' && <DesignsPage />}
+      {activePage === 'Designs' && <DesignsPage onDirtyChange={handleDesignsDirtyChange} />}
     </>
   )
 }

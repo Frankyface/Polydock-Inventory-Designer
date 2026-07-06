@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "polydock-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8082", "--directory", "dist-preview-test"],
+      "port": 8082
     }
   ]
 }

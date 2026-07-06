@@ -1,4 +1,4 @@
-export function DesignsListPage({ designs, onCreate, onSelect, onDelete }) {
+export function DesignsListPage({ designs, onCreate, onSelect, onDelete, saveError }) {
   return (
     <div className="designs-list-page">
       <div className="app-header">
@@ -7,6 +7,12 @@ export function DesignsListPage({ designs, onCreate, onSelect, onDelete }) {
           + New design
         </button>
       </div>
+      {saveError && (
+        <p className="error-text">
+          Your last change couldn't be saved to this browser's storage (it may be full). Try freeing up space or
+          removing a background image from a design.
+        </p>
+      )}
       {designs.length === 0 ? (
         <p>No designs yet — create one to start laying out a dock.</p>
       ) : (

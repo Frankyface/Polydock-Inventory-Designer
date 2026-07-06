@@ -4,9 +4,10 @@ const SEAM_COLORS = {
   straight: '#2b6cb0',
   notched: '#c2410c',
 }
+const GANGWAY_ATTACHMENT_COLOR = '#7e5bef'
 
 export function SeamLine({ seam }) {
-  const color = SEAM_COLORS[seam.junctionType]
+  const color = seam.isGangwayAttachment ? GANGWAY_ATTACHMENT_COLOR : SEAM_COLORS[seam.junctionType]
   const x1 = seam.orientation === 'vertical' ? seam.line : seam.start
   const y1 = seam.orientation === 'vertical' ? seam.start : seam.line
   const x2 = seam.orientation === 'vertical' ? seam.line : seam.end
@@ -21,6 +22,7 @@ export function SeamLine({ seam }) {
       stroke={color}
       strokeWidth={3}
       strokeLinecap="round"
+      strokeDasharray={seam.isGangwayAttachment ? '2 4' : undefined}
     />
   )
 }

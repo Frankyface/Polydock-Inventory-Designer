@@ -155,6 +155,21 @@ th, td {
   margin: 0 0 0.5rem;
 }
 
+.module-palette .category-tabs {
+  gap: 0.15rem;
+  margin-bottom: 0.6rem;
+}
+
+.module-palette .tab {
+  padding: 0.35rem 0.4rem;
+  font-size: 0.8rem;
+}
+
+.palette-empty {
+  font-size: 0.85rem;
+  color: #5b6b78;
+}
+
 .module-palette ul {
   list-style: none;
   margin: 0;
@@ -188,5 +203,28 @@ th, td {
 }
 
 .placed-module {
+  cursor: grab;
+}
+
+.background-controls {
+  font-size: 0.85rem;
+}
+
+.background-controls label {
+  gap: 0.4rem;
+}
+
+.file-input-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #dde3e8;
+  border-radius: 6px;
+  background: #f4f6f8;
+}
+
+.background-drag-layer {
   cursor: grab;
 }

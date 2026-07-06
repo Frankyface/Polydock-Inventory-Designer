@@ -5,8 +5,8 @@ import { DesignEditor } from './DesignEditor.jsx'
 
 const BLANK_DRAFT = { id: null, name: 'Untitled design', isFreeDesign: false, items: [] }
 
-export function DesignsPage() {
-  const { designs, createDesign, saveDesign, deleteDesign } = useDesigns()
+export function DesignsPage({ onDirtyChange }) {
+  const { designs, createDesign, saveDesign, deleteDesign, saveError } = useDesigns()
   // 'draft' means a brand-new, not-yet-saved design — nothing is written to
   // localStorage for it until Save is clicked, so backing out of a design
   // someone never touched leaves zero trace (see useDesigns.js).
@@ -29,6 +29,7 @@ export function DesignsPage() {
         design={activeDesign}
         onSave={handleSave}
         onBack={() => setActiveDesignId(null)}
+        onDirtyChange={onDirtyChange}
       />
     )
   }
@@ -39,6 +40,7 @@ export function DesignsPage() {
       onCreate={() => setActiveDesignId('draft')}
       onSelect={setActiveDesignId}
       onDelete={deleteDesign}
+      saveError={saveError}
     />
   )
 }

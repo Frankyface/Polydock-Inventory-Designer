@@ -8,11 +8,12 @@
 // This is the entire "database" for v1: no backend, just this module plus
 // whatever's in the user's browser localStorage (see useLocalInventory.js).
 
-export const CATEGORIES = ['module', 'connector', 'accessory']
+export const CATEGORIES = ['module', 'connector', 'gangway', 'accessory']
 
 export const CATEGORY_LABELS = {
   module: 'Dock Modules',
   connector: 'Connectors',
+  gangway: 'Gangways & Ramps',
   accessory: 'Accessories',
 }
 
@@ -107,6 +108,82 @@ export const PARTS = [
   { id: 'accessory-stiff-arm-heavy', category: 'accessory', name: 'ShoreMaster Stiff-Arm (Heavy Duty)', sku: '1106', dimensions: {}, priceType: 'dealer_listed', isVerified: true, sourceNotes: 'For docks parallel to shore where piles/chains aren’t practical.' },
   { id: 'accessory-connector-rod-composite', category: 'accessory', name: 'Connector Rod (composite, spare part)', sku: '1074640', dimensions: { lengthIn: 13.875 }, priceUsd: 36, priceType: 'dealer_listed', isVerified: true, sourceNotes: 'Standard internal rod for every connector’s clamp assembly.' },
   { id: 'accessory-connector-rod-stainless', category: 'accessory', name: 'Poly Connector Rod, 316 Stainless Steel (upgrade)', sku: '1015919', dimensions: { lengthIn: 13.875 }, priceUsd: 105, priceType: 'dealer_listed', isVerified: true, sourceNotes: 'All-metal upgrade over the standard composite connector rod.' },
+
+  // ── Gangways & Ramps (walkable spans, placeable on the canvas) ────────
+  // Researched separately from the original catalog pass — see
+  // staging/stage-3-design-canvas/feature-gangways.md. Sources:
+  // polydockproducts.com/dock-systems/ramps-gangways/, PolyDock's own
+  // assembly-instructions PDF (accessories index confirms these sizes as
+  // real catalog items), and dealer boatliftanddock.com for SKUs/pricing.
+  // dimensions.nominalEdgesFt makes these behave like modules (true-scale,
+  // snappable to a dock module's edge) — see geometry.js's hasFootprint.
+  {
+    id: 'gangway-16ft', category: 'gangway', name: "ShoreMaster 4' x 16' Residential Gangway", sku: '1003960',
+    dimensions: { nominalEdgesFt: [16, 4] }, priceUsd: 3425, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: 'boatliftanddock.com. Frame + handrails only; decking sold separately (9 ShoreMaster decking options). Ships LTL freight. Pivots at the dock end via a dedicated hinge (see accessory-gangway-to-polydock-hinge); the shore end rests/floats freely.',
+  },
+  {
+    id: 'gangway-20ft', category: 'gangway', name: "ShoreMaster 4' x 20' Residential Gangway", sku: '1003961',
+    dimensions: { nominalEdgesFt: [20, 4] }, priceUsd: 4586, priceType: 'dealer_listed', isVerified: false,
+    sourceNotes: 'Name/price confirmed on dealer catalog; SKU inferred by sequence from the 16ft/24ft SKUs, not independently re-verified. Requires local pickup/delivery only (not LTL shippable).',
+  },
+  {
+    id: 'gangway-24ft', category: 'gangway', name: "ShoreMaster 4' x 24' Residential Gangway", sku: '1003962',
+    dimensions: { nominalEdgesFt: [24, 4] }, priceUsd: 5264, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: 'boatliftanddock.com, SKU confirmed via direct product page. Requires local pickup/delivery only (not LTL shippable).',
+  },
+  {
+    id: 'ramp-4ft', category: 'gangway', name: "ShoreMaster/PolyDock 4' Aluminum Ramp", sku: null,
+    dimensions: { nominalEdgesFt: [4, 4] }, priceUsd: 448, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: "boatliftanddock.com (dealer product id 1128; underlying manufacturer SKU not separately confirmed). Frame only; decking + PolyDock ramp connector hardware sold separately. Manufacturer's own assembly-instructions PDF accessories index corroborates a '4' or 8' Ramp' as a real catalog item.",
+  },
+  {
+    id: 'ramp-8ft', category: 'gangway', name: "ShoreMaster 4' x 8' Aluminum Ramp", sku: '1006677',
+    dimensions: { nominalEdgesFt: [8, 4] }, priceUsd: 846, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: 'boatliftanddock.com, SKU confirmed via direct product page. Decking sold separately ($480-1080 depending on material). Compatible with PolyDock via the separate 4ft Ramp Connector kit.',
+  },
+  {
+    id: 'ramp-6x8ft', category: 'gangway', name: "ShoreMaster/PolyDock 6' x 8' Aluminum Ramp", sku: null,
+    dimensions: { nominalEdgesFt: [8, 6] }, priceUsd: null, priceType: 'unverified', isVerified: false,
+    sourceNotes: "Existence and size (6'x8') confirmed by PolyDock's own official assembly-instructions PDF accessories index — a higher-confidence source than marketing copy — but no dealer SKU or price was found in this research pass.",
+  },
+
+  // ── Gangway/ramp hinge hardware & water-end support (point accessories) ─
+  {
+    id: 'accessory-ramp-connector-4ft', category: 'accessory', name: "PolyDock 4' Ramp Connector", sku: '1006610',
+    dimensions: {}, priceUsd: 272, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: "boatliftanddock.com. Pivoting aluminum hardware joining a 4ft-wide ramp to a PolyDock section (4'x10', 4'x6', 5'x10', or 6'x8'); bolts to the ramp's side stringer, secures to the section's outside channel, and lets the ramp's slope adjust with water level — directly analogous to the Ladder Connector kit.",
+  },
+  {
+    id: 'accessory-ramp-connector-6ft', category: 'accessory', name: "PolyDock 6' Ramp Connector", sku: null,
+    dimensions: {}, priceUsd: 340, priceType: 'dealer_listed', isVerified: false,
+    sourceNotes: 'Same function as the 4ft Ramp Connector, sized for 6ft ramps/sections. Found via a dealer category page, not a direct individual product page — SKU not independently confirmed.',
+  },
+  {
+    id: 'accessory-double-hinge-assembly', category: 'accessory', name: 'PolyDock Double Hinge Assembly', sku: '1006645',
+    dimensions: {}, priceUsd: 602, priceType: 'dealer_listed', isVerified: true,
+    sourceNotes: "boatliftanddock.com, explicitly 'Designed to Fit: PolyDock Section.' A second, heavier-duty dedicated PolyDock hinge/connector beyond the basic Ramp Connector — not confirmed whether it's gangway-specific or general dock-section hardware.",
+  },
+  {
+    id: 'accessory-gangway-to-polydock-hinge', category: 'accessory', name: 'ShoreMaster Gangway-to-PolyDock Dock Hinge', sku: null,
+    dimensions: {}, priceUsd: 497.5, priceType: 'unverified', isVerified: false,
+    sourceNotes: 'Dedicated hinge connecting a ShoreMaster Residential Gangway (16/20/24ft) to a PolyDock section, distinct from the shorter Ramp Connectors. Price varied $485-510 across two sources (497.50 is the simple midpoint, not confirmed); product-page ID was inconsistent across sources too.',
+  },
+  {
+    id: 'accessory-gangway-roller-kit', category: 'accessory', name: 'ShoreMaster Gangway Bolt-on Roller Kit', sku: '1006581',
+    dimensions: {}, priceUsd: 235.5, priceType: 'unverified', isVerified: false,
+    sourceNotes: 'Supports the water/shore end of a gangway with rollers instead of a fixed hinge. Price range reported as $229-242; 235.50 is the simple midpoint, not independently confirmed.',
+  },
+  {
+    id: 'accessory-gangway-float-cradle', category: 'accessory', name: 'ShoreMaster Float Cradle for Gangway', sku: null,
+    dimensions: {}, priceUsd: 488, priceType: 'unverified', isVerified: false,
+    sourceNotes: 'Provides water-end flotation support for long gangways. SKU not captured; price not independently re-verified.',
+  },
+  {
+    id: 'accessory-gangway-float-module', category: 'accessory', name: 'ShoreMaster 2\' x 4\' x 12" Float', sku: null,
+    dimensions: { lengthIn: 48, widthIn: 24, heightIn: 12 }, priceUsd: 228, priceType: 'unverified', isVerified: false,
+    sourceNotes: 'Small flotation module for water-end support of long gangways, distinct from full PolyDock floating dock sections. SKU not captured; price not independently re-verified.',
+  },
 ]
 
 // Connector-matching rules for Stage 4: edge length + junction type -> connector part id.

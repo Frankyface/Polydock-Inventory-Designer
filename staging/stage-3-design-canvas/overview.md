@@ -9,13 +9,19 @@ The core visual tool: a 2D top-down grid canvas where staff drag real PolyDock m
 - `feature-grid-canvas.md` — the canvas itself: grid, module palette.
 - `feature-module-snapping.md` — drag-and-snap logic, edge detection, seam/junction classification, true-to-scale rendering from catalog dimensions.
 - `feature-free-design-mode.md` — the stock-agnostic design mode and how it's toggled/labeled.
+- `feature-accessory-placement.md` — placing accessories (cleats, bumpers, etc.) as freely-positioned markers, added post-launch per user request.
+- `feature-gangways.md` — gangways/ramps, a real product category missed in the original catalog research, added post-launch: placeable spans + dedicated hinge hardware, excluded from the standard connector-matching rule.
+- `feature-background-image.md` — uploading a reference photo (e.g. a Google Maps screenshot) as a positionable/scalable background layer, added post-launch.
 
 ## Definition of done
 
 - [x] A user can drag any catalog module onto the canvas at its true relative size.
-- [x] Adjacent modules snap edge-to-edge cleanly, with a visible seam (color-coded straight vs. notched).
+- [x] Adjacent modules snap edge-to-edge cleanly, with a visible seam (color-coded straight vs. notched vs. gangway-attachment).
 - [x] A design (its module placements) can be saved and reloaded.
 - [x] Free design mode is clearly indicated in the UI as not being checked against real stock (a per-design checkbox, stored with the design).
+- [x] Accessories can be placed on the canvas as freely-positioned markers.
+- [x] Gangways/ramps can be placed and snapped like modules, with their attachment seams correctly distinguished from standard module-to-module connectors.
+- [x] A background reference photo can be uploaded, positioned, scaled, and made semi-transparent.
 
 ## Open Questions
 

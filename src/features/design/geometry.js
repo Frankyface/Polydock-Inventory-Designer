@@ -3,6 +3,14 @@ import { SNAP_TOLERANCE_FT } from './constants.js'
 
 const EPSILON = 0.01
 
+// Modules and gangways are rectangular floor/walkway pieces with a real
+// nominal footprint — they snap edge-to-edge and participate in seam
+// classification. Accessories (cleats, bumpers, ladders, ...) are small
+// attachment points placed freely with no footprint — see AccessoryMarker.jsx.
+export function hasFootprint(part) {
+  return Boolean(part?.dimensions?.nominalEdgesFt)
+}
+
 // Rotation is 90°-increment only. At 90/270 the module's two nominal edge
 // lengths swap which axis they occupy; at 0/180 they don't.
 export function getFootprint(part, rotation) {
@@ -125,6 +133,7 @@ function connectorRuleFor(seamLengthFt, junctionType) {
 // output to pick the actual connector part and check stock.
 export function computeSeams(placedModules, partsById) {
   const boundsById = new Map(placedModules.map((m) => [m.id, getBounds(m, partsById[m.partId])]))
+  const categoryById = new Map(placedModules.map((m) => [m.id, partsById[m.partId]?.category]))
 
   const contacts = []
   for (let i = 0; i < placedModules.length; i++) {
@@ -196,10 +205,17 @@ export function computeSeams(placedModules, partsById) {
     const convergesAtCrossPoint = seamEndpoints(seam).some((key) => seamCountByPoint.get(key).size >= 3)
     const junctionType = convergesAtCrossPoint ? 'notched' : seam.junctionType
 
+    // Gangways/ramps attach to a dock section with dedicated hinge hardware
+    // (Ramp Connector, Double Hinge Assembly, Gangway-to-PolyDock Hinge — see
+    // partsCatalog.js), not the standard straight/notched module connectors —
+    // CONNECTOR_RULES only applies to module-to-module seams.
+    const isGangwayAttachment =
+      categoryById.get(seam.moduleAId) === 'gangway' || categoryById.get(seam.moduleBId) === 'gangway'
+
     const seamLengthFt = Math.round(seam.lengthFt)
     const isNearWholeFoot = Math.abs(seam.lengthFt - seamLengthFt) < EPSILON
-    const connectorRule = isNearWholeFoot ? connectorRuleFor(seamLengthFt, junctionType) : undefined
+    const connectorRule = !isGangwayAttachment && isNearWholeFoot ? connectorRuleFor(seamLengthFt, junctionType) : undefined
 
-    return { ...seam, junctionType, connectorPartId: connectorRule?.connectorPartId ?? null }
+    return { ...seam, junctionType, isGangwayAttachment, connectorPartId: connectorRule?.connectorPartId ?? null }
   })
 }

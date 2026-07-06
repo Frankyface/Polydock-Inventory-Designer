@@ -15,3 +15,8 @@ export const SNAP_TOLERANCE_FT = 1
 // (T/L/U shapes per the manufacturer's own diagrams), so free rotation
 // would add complexity with no real benefit.
 export const ROTATION_STEPS = [0, 90, 180, 270]
+
+// A freshly-uploaded background photo (e.g. a Google Maps screenshot) is
+// rendered at this width (at scale 1), preserving its own aspect ratio —
+// roughly fills a useful chunk of the default canvas without swamping it.
+export const DEFAULT_BACKGROUND_WIDTH_FT = 40
